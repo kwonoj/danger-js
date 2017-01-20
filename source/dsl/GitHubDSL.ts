@@ -239,4 +239,10 @@ export interface GitHubPRDSL {
    * @type {number}
    */
   changed_files: number
+
+  /**
+   * The base url for any commits
+   * @type {string}
+   */
+  commits_url: string
 }

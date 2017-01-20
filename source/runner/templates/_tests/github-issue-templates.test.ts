@@ -3,26 +3,31 @@ import { template as githubResultsTemplate } from "../../templates/github-issue-
 
 describe("generating messages", () => {
   it("shows no tables for empty results", () => {
-    const issues = githubResultsTemplate(emptyResults)
+    const issues = githubResultsTemplate(emptyResults, "")
     expect(issues).not.toContain("Fails")
     expect(issues).not.toContain("Warnings")
     expect(issues).not.toContain("Messages")
   })
 
   it("Shows the failing messages in a table", () => {
-    const issues = githubResultsTemplate(failsResults)
+    const issues = githubResultsTemplate(failsResults, "")
     expect(issues).toContain("Fails")
     expect(issues).not.toContain("Warnings")
   })
 
   it("Shows the warning messages in a table", () => {
-    const issues = githubResultsTemplate(warnResults)
+    const issues = githubResultsTemplate(warnResults, "")
     expect(issues).toContain("Warnings")
     expect(issues).not.toContain("Fails")
   })
 
   it("does not break commonmark rules around line breaks", () => {
-    const issues = githubResultsTemplate(warnResults)
+    const issues = githubResultsTemplate(warnResults, "")
     expect(issues).not.toMatch(/(\r?\n){2}[ \t]+</)
+  })
+
+  it("adds the signature", () => {
+    const issues = githubResultsTemplate(warnResults, "This should be in there")
+    expect(issues).toMatch(/This should be in there/)
   })
 })

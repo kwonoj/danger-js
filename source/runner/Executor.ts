@@ -3,7 +3,7 @@ import { DangerDSL } from "../dsl/DangerDSL"
 import { CISource } from "../ci_source/ci_source"
 import { Platform } from "../platforms/platform"
 import { DangerResults } from "../dsl/DangerResults"
-import { template as githubResultsTemplate } from "./templates/github-issue-template"
+import { template as githubResultsTemplate, signature as githubSignature } from "./templates/github-issue-template"
 import { createDangerfileRuntimeEnvironment, runDangerfileEnvironment } from "./DangerfileRunner"
 import { DangerfileRuntimeEnv } from "./types"
 import * as debug from "debug"
@@ -40,10 +40,10 @@ export class Executor {
    * @param {string} file the filepath to the Dangerfile
    * @returns {void} It's a promise, so a void promise
    */
-
   async runDanger(file: string, runtime: DangerfileRuntimeEnv) {
     const results = await runDangerfileEnvironment(file, runtime)
-    await this.handleResults(results)
+    const signature = githubSignature(runtime.context.danger.github.pr)
+    await this.handleResults(results, signature)
   }
 
   /** Sets up all the related objects for running the Dangerfile
@@ -60,7 +60,7 @@ export class Executor {
    * @param {DangerResults} results a JSON representation of the end-state for a Danger run
    * @returns {void} It's a promise, so a void promise
    */
-  async handleResults(results: DangerResults) {
+  async handleResults(results: DangerResults, signature: string) {
     // Ensure process fails if there are fails
     if (results.fails.length) {
       process.exitCode = 1
@@ -83,7 +83,7 @@ export class Executor {
       } else if (messageCount > 0) {
         console.log("Found some message, writing it down")
       }
-      const comment = githubResultsTemplate(results)
+      const comment = githubResultsTemplate(results, signature)
       await this.platform.updateOrCreateComment(comment)
     }
   }
